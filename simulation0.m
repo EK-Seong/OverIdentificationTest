@@ -7,7 +7,7 @@ mu=[0;0];
 rho = 0.5;
 sigma=[[1,rho];[rho,1]];
 
-samplesize = 10000;
+samplesize = 100;
 
 pi1 = 1;
 pi2 = 0.8;
@@ -15,7 +15,7 @@ pi3 = 0.5;
 pi4 = 0.1;
 pi = [pi1;pi2;pi3;pi4];
 
-alpha = 0; % Represents Exogeneity of the IV
+alpha = 0.0; % Represents Exogeneity of the IV
 
 beta = 1;
 beta_constant = 2;
@@ -51,7 +51,7 @@ max(Y)
 
 %% Overidentification Test
 test_size = 0.05; % test size alpha
-reps = 500;
+reps = 5000;
 r = 1;
 Jstat_matrix = zeros(reps,3);
 test_matrix = zeros(reps,3); % the column size is 3 because the model is up to 4th polynomial of Z
@@ -103,21 +103,22 @@ while r <= reps
 
     r = r + 1;
 end
-test = mean(test_matrix,1);
-J1 = Jstat_matrix(:,1);
-J2 = Jstat_matrix(:,2);
-J3 = Jstat_matrix(:,3);
+test = mean(test_matrix,1)
+% J1 = Jstat_matrix(:,1);
+% J2 = Jstat_matrix(:,2);
+% J3 = Jstat_matrix(:,3);
 
-chi2 = chi2rnd(3,reps,1);
-J1 = sort(J1,1,"ascend","ComparisonMethod","real");
-J2 = sort(J2,1,"ascend","ComparisonMethod","real");
-J3 = sort(J3,1,"ascend","ComparisonMethod","real");
+% chi2 = chi2rnd(3,reps,1);
+% J1 = sort(J1,1,"ascend","ComparisonMethod","real");
+% J2 = sort(J2,1,"ascend","ComparisonMethod","real");
+% J3 = sort(J3,1,"ascend","ComparisonMethod","real");
 
-figure(1)
-histogram(J1,50)
-figure(2)
-histogram(J2,50)
-figure(3)
-histogram(J3,50)
-figure(4)
-histogram(chi2,50)
+% figure(1)
+% histogram(J1,50)
+% figure(2)
+% histogram(J2,50)
+% figure(3)
+% histogram(J3,50)
+% figure(4)
+% histogram(chi2,50)
+% chi2inv(1.2426e-299,3)
