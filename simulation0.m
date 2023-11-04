@@ -4,18 +4,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 mu=[0;0];
-rho = 0.5;
+rho = 0.1; % Represents the degree of endogeneity
 sigma=[[1,rho];[rho,1]];
 
-samplesize = 100;
+samplesize = 1000;
 
 pi1 = 1;
 pi2 = 0.8;
-pi3 = 0.5;
-pi4 = 0.1;
+pi3 = 0.15;
+pi4 = 0.11;
 pi = [pi1;pi2;pi3;pi4];
 
-alpha = 0.0; % Represents Exogeneity of the IV
+alpha = 0.1; % Represents Exogeneity of the IV
 
 beta = 1;
 beta_constant = 2;
@@ -39,15 +39,15 @@ X = Z*pi+u;
 Y = zeros(samplesize,1);
 Y = beta_constant+X.*beta+instrument.*alpha+e;
 
-%% OLS
-x_ols = [ones(samplesize,1) X];
-beta_ols = (x_ols'*x_ols)\x_ols'*Y;
-x_axis = -2:0.1:8;
-Y_ols = beta_ols(1,1)+x_axis.*beta_ols(2,1);
-min(Y)
-max(Y)
-
-%% IV
+% %% OLS
+% x_ols = [ones(samplesize,1) X];
+% beta_ols = (x_ols'*x_ols)\x_ols'*Y;
+% x_axis = -2:0.1:8;
+% Y_ols = beta_ols(1,1)+x_axis.*beta_ols(2,1);
+% min(Y)
+% max(Y)
+% 
+% %% IV
 
 %% Overidentification Test
 test_size = 0.05; % test size alpha
@@ -93,10 +93,12 @@ while r <= reps
     
         % 2-step efficient GMM
         Omega_hat = diag((Y-Xn*beta_2sls).^2);
-        beta_egmm = ((Xn'*Zn)/(Zn'*Omega_hat*Zn)*(Zn'*Xn))\(Xn'*Zn)/(Zn'*Omega_hat*Zn)*(Zn'*Y);
+        beta_egmm = ((Xn'*Zn)/(Zn'*Omega_hat*Zn)*(Zn'*Xn))\((Xn'*Zn)/(Zn'*Omega_hat*Zn)*(Zn'*Y));
     
         % Test statistic
         nJn = (Zn'*(Y-Xn*beta_egmm))'/(Zn'*Omega_hat*Zn)*(Zn'*(Y-Xn*beta_egmm));
+
+        % Save the count of rejection and J-stat to each matrices
         test_matrix(r,i-1) = int8(test_size > chi2cdf(nJn,df,"upper"));
         Jstat_matrix(r,i-1) = nJn;
     end
@@ -104,11 +106,11 @@ while r <= reps
     r = r + 1;
 end
 test = mean(test_matrix,1)
-% J1 = Jstat_matrix(:,1);
-% J2 = Jstat_matrix(:,2);
-% J3 = Jstat_matrix(:,3);
+J1 = Jstat_matrix(:,1);
+J2 = Jstat_matrix(:,2);
+J3 = Jstat_matrix(:,3);
 
-% chi2 = chi2rnd(3,reps,1);
+chi2 = chi2rnd(3,reps,1);
 % J1 = sort(J1,1,"ascend","ComparisonMethod","real");
 % J2 = sort(J2,1,"ascend","ComparisonMethod","real");
 % J3 = sort(J3,1,"ascend","ComparisonMethod","real");
