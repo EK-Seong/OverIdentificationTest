@@ -4,16 +4,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 mu=[0;0];
-rho = 0.1; % Represents the degree of endogeneity
+rho = 0.5; % Represents the degree of endogeneity
 sigma=[[1,rho];[rho,1]];
 
-samplesize = 1000;
+samplesize = 100;
 
 pi1 = 1;
-pi2 = 0.8;
-pi3 = 0.5;
+pi2 = 0.5;
+pi3 = 0.2;
 pi4 = 0.1;
-pi = [pi1;pi2;pi3;pi4];
+pi5 = 0.05;
+pi6 = 0.01;
+pi = [pi1;pi2;pi3;pi4;pi5;pi6];
 
 alpha = 0.1; % Represents Exogeneity of the IV
 
@@ -27,17 +29,17 @@ beta_constant = 2;
 %            Z~N(0,1)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-error_vector = mvnrnd(mu,sigma,samplesize); % let the first column be e and the second be u
-e = error_vector(:,1);
-u = error_vector(:,2);
-instrument = normrnd(0,1,samplesize,1);
-Z = [instrument,instrument.^2,instrument.^3,instrument.^4];
-
-X = zeros(samplesize,1);
-X = Z*pi+u;
-
-Y = zeros(samplesize,1);
-Y = beta_constant+X.*beta+instrument.*alpha+e;
+% error_vector = mvnrnd(mu,sigma,samplesize); % let the first column be e and the second be u
+% e = error_vector(:,1);
+% u = error_vector(:,2);
+% instrument = normrnd(0,1,samplesize,1);
+% Z = [instrument,instrument.^2,instrument.^3,instrument.^4, instrument.^5, instrument.^6];
+% 
+% X = zeros(samplesize,1);
+% X = Z*pi+u;
+% 
+% Y = zeros(samplesize,1);
+% Y = beta_constant+X.*beta+instrument.*alpha+e;
 
 % %% OLS
 % x_ols = [ones(samplesize,1) X];
@@ -53,8 +55,9 @@ Y = beta_constant+X.*beta+instrument.*alpha+e;
 test_size = 0.05; % test size alpha
 reps = 5000;
 r = 1;
-Jstat_matrix = zeros(reps,3);
-test_matrix = zeros(reps,3); % the column size is 3 because the model is up to 4th polynomial of Z
+K = 8; % We expand up to K-th order of polynomial
+Jstat_matrix = zeros(reps,K-1);
+test_matrix = zeros(reps,K-1); % the column size is 3 because the model is up to 4th polynomial of Z
 while r <= reps
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,7 +71,7 @@ while r <= reps
     e = error_vector(:,1);
     u = error_vector(:,2);
     instrument = normrnd(0,1,samplesize,1);
-    Z = [instrument,instrument.^2,instrument.^3,instrument.^4];
+    Z = [instrument,instrument.^2,instrument.^3,instrument.^4, instrument.^5, instrument.^6];
     
     X = zeros(samplesize,1);
     X = Z*pi+u;
@@ -79,10 +82,16 @@ while r <= reps
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % OverIdentification tests              
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    for i = 2:4
-        df = i-1;
-        Zn = [ones(samplesize,1) Z(:,1:i)];
+    Zmat = [ones(samplesize,1) instrument.^1 instrument.^2 instrument.^3 instrument.^4 instrument.^5 instrument.^6 instrument.^7 instrument.^8]; %Preallocation for speed
+    for i = 2:K
+        df = i-1; % degree of freedom of the limiting distribution
+        % This part is For Abstraction - now it is referenced for speed
+%         Zn = [ones(samplesize,1)];
+%         for j = 1:K
+%             Zn = [Zn instrument^j];
+%         end
+        
+        Zn = Zmat(:,1:i+1);
         % 2SLS
         % First stage:
         pi_hat = (Zn'*Zn)\Zn'*X;
@@ -101,6 +110,12 @@ while r <= reps
         % Save the count of rejection and J-stat to each matrices
         test_matrix(r,i-1) = int8(test_size > chi2cdf(nJn,df,"upper"));
         Jstat_matrix(r,i-1) = nJn;
+
+        if(i==2)
+            R = [zeros(2,i-1);eye(i-1,i-1,"double")];
+            c = zeros(i-1,1);
+            W0_1 = ((R'*pi_hat-c)'/(R'/(Zn'*Zn)*R)*(R'*pi_hat-c))/(((X-X_fit)'*(X-X_fit))/(samplesize-5));
+        end
     end
 
     r = r + 1;
@@ -109,8 +124,12 @@ test = mean(test_matrix,1)
 J1 = Jstat_matrix(:,1);
 J2 = Jstat_matrix(:,2);
 J3 = Jstat_matrix(:,3);
+J4 = Jstat_matrix(:,4);
+J5 = Jstat_matrix(:,5);
+J6 = Jstat_matrix(:,6);
+J7 = Jstat_matrix(:,7);
 
-chi2 = chi2rnd(3,reps,1);
+chi2 = chi2rnd(5,reps,1);
 % J1 = sort(J1,1,"ascend","ComparisonMethod","real");
 % J2 = sort(J2,1,"ascend","ComparisonMethod","real");
 % J3 = sort(J3,1,"ascend","ComparisonMethod","real");
@@ -126,7 +145,8 @@ chi2 = chi2rnd(3,reps,1);
 % chi2inv(1.2426e-299,3)
 
 % F-Test
-R = [[0,0,0];[0,0,0];eye(3,3,"double")];
-c = [0;0;0];
+R = [zeros(2,K-1);eye(K-1,K-1,"double")];
+c = zeros(K-1,1);
 W0 = ((R'*pi_hat-c)'/(R'/(Zn'*Zn)*R)*(R'*pi_hat-c))/(((X-X_fit)'*(X-X_fit))/(samplesize-5));
 chi2cdf(W0,1,"upper")
+chi2cdf(W0_1,1,"upper");
