@@ -11,8 +11,8 @@ samplesize = 1000;
 
 pi1 = 1;
 pi2 = 0.8;
-pi3 = 0.15;
-pi4 = 0.11;
+pi3 = 0.5;
+pi4 = 0.1;
 pi = [pi1;pi2;pi3;pi4];
 
 alpha = 0.1; % Represents Exogeneity of the IV
@@ -124,3 +124,9 @@ chi2 = chi2rnd(3,reps,1);
 % figure(4)
 % histogram(chi2,50)
 % chi2inv(1.2426e-299,3)
+
+% F-Test
+R = [[0,0,0];[0,0,0];eye(3,3,"double")];
+c = [0;0;0];
+W0 = ((R'*pi_hat-c)'/(R'/(Zn'*Zn)*R)*(R'*pi_hat-c))/(((X-X_fit)'*(X-X_fit))/(samplesize-5));
+chi2cdf(W0,1,"upper")
