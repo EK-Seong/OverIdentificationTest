@@ -1,3 +1,4 @@
+clear
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters -                    %%%%
@@ -9,6 +10,7 @@ sigma=[[1,rho];[rho,1]];
 
 samplesize = 100;
 
+pi0 = 1;
 pi1 = 1;
 pi2 = 0.5;
 pi3 = 0.2;
@@ -17,10 +19,10 @@ pi5 = 0.05;
 pi6 = 0.01;
 pi = [pi1;pi2;pi3;pi4;pi5;pi6];
 
-alpha = 0.1; % Represents Exogeneity of the IV
+alpha = [0;0;0;0;0;0]; % Represents Exogeneity of the IV
 
 beta = 1;
-beta_constant = 2;
+beta_constant = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The model: Y=X'beta+Z'alpha+e
@@ -53,7 +55,7 @@ beta_constant = 2;
 
 %% Overidentification Test
 test_size = 0.05; % test size alpha
-reps = 5000;
+reps = 1000;
 r = 1;
 K = 8; % We expand up to K-th order of polynomial
 Jstat_matrix = zeros(reps,K-1);
@@ -70,14 +72,14 @@ while r <= reps
     error_vector = mvnrnd(mu,sigma,samplesize); % let the first column be e and the second be u
     e = error_vector(:,1);
     u = error_vector(:,2);
-    instrument = normrnd(0,1,samplesize,1);
+    instrument = mvnrnd(0,1,samplesize);
     Z = [instrument,instrument.^2,instrument.^3,instrument.^4, instrument.^5, instrument.^6];
     
     X = zeros(samplesize,1);
-    X = Z*pi+u;
+    X = pi0+Z*pi+u;
     
     Y = zeros(samplesize,1);
-    Y = beta_constant+X.*beta+instrument.*alpha+e;
+    Y = beta_constant+X.*beta+Z*alpha+e;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % OverIdentification tests              
@@ -150,3 +152,5 @@ c = zeros(K-1,1);
 W0 = ((R'*pi_hat-c)'/(R'/(Zn'*Zn)*R)*(R'*pi_hat-c))/(((X-X_fit)'*(X-X_fit))/(samplesize-5));
 chi2cdf(W0,1,"upper")
 chi2cdf(W0_1,1,"upper");
+
+histogram(chi2);hold on;histogram(Jstat_matrix(:,5));hold off;
