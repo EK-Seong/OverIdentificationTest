@@ -1,8 +1,8 @@
 clear
 
 rho = 0.5;
-pi = [1;1;1];
-alpha = [1;2];
+pi = [1;0.1;0.01];
+alpha = [1;0];
 beta = [1;1];
 n = 100;
 rep = 1000;
@@ -14,6 +14,12 @@ Jstat = zeros(rep,1);
 rejection = zeros(rep,1);
 
 for i=1:rep
+    for K=100:100:rep
+        if i==K
+            i
+        end
+    end
+    
     u=mvnrnd([0;0],[[1,rho];[rho,1]],n);
     z=mvnrnd([0;0],[[1,rho];[rho,1]],n);
     x=[ones(n,1),z]*pi+u(:,2);
@@ -38,12 +44,12 @@ for i=1:rep
     rejection(i,1)=chi2cdf(nJn,1,"upper")<testsize;
 
 end
-mean(b2sls,1)
-std(b2sls)
-mean(b2step,1)
-std(b2step)
-mean(Jstat,1)
-std(Jstat)
+% mean(b2sls,1)
+% std(b2sls)
+% mean(b2step,1)
+% std(b2step)
+% mean(Jstat,1)
+% std(Jstat)
 
 chi = chi2rnd(1,rep,1);
 mean(rejection,1)
