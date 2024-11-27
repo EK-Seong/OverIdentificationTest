@@ -40,15 +40,15 @@ This is equivalent to GMM estimation using $E[Z_ie_i]=0$ as a moment condtion, w
 
 ### Efficient (2-step) GMM estimator
 
-$\hat{\beta}_{egmm}=(X'PX)^{-1}X'PY$ , where $P=Z(n^{-1}Z'\hat\Omega(\hat{\beta}_{2sls}) Z)^{-1}Z'$ ,
+$\hat\beta_{egmm}=(X'PX)^{-1}X'PY$ , where $P=Z(n^{-1}Z'\hat\Omega(\hat\beta_{2sls}) Z)^{-1}Z'$ ,
 
-and $\hat\Omega(\hat{\beta}_{2sls})=diag((Y_i-X_i\hat{\beta}_{2sls})^2)$
+and $\hat\Omega(\hat\beta_{2sls})=diag((Y_i-X_i\hat\beta_{2sls})^2)$
 
 ### Hansen’s J-statistic
 
 To test IVs’ exogeneity conditions we use the following test statistic.
 
-$J_n(\hat{\beta}_{egmm})=(\hat{e}'Z/n)(Z'\hat{\Omega}Z/n)(Z'\hat{e}/n)$
+$J_n(\hat\beta_{egmm})=(\hat{e}'Z/n)(Z'\hat{\Omega}Z/n)(Z'\hat{e}/n)$
 
 $=n^{-1}(Y-X\hat{\beta}_{egmm})'Z(n^{-1}Z'\hat\Omega(\hat{\beta}_{2sls}) Z)^{-1}n^{-1}Z'(Y-X\hat{\beta}_{egmm})$
 
