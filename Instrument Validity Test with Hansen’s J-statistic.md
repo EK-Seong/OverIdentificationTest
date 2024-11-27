@@ -97,6 +97,6 @@ u_i \\e_i
 
 Because the IV is from standard normal m(Z) should contain even powers, for example m(Z)=Z^2
 
-![Untitled](Untitled.png)
+![Power](power.png)
 
-![Untitled](Untitled%201.png)
+![Size](size.png)
