@@ -34,7 +34,7 @@ Recall that in a overidentified model, i.e., number of IVs is larger than number
 
 ### 2SLS estimator
 
-$\hat{\beta}_{2sls}=(X'P_{z}X)^{-1}X'P_{z}Y$ , where $P_{z}=Z(Z'Z)^{-1}Z'$
+$\hat\beta_{2sls}=(X'P_{z}X)^{-1}X'P_{z}Y$ , where $P_{z}=Z(Z'Z)^{-1}Z'$
 
 This is equivalent to GMM estimation using $E[Z_ie_i]=0$ as a moment condtion, with proper weight matrix. Note that $E[e_i|Z_i]=0 \Rightarrow E[Z_ie_i]=0$ .
 
